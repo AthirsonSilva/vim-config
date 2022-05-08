@@ -2,6 +2,35 @@ set encoding=utf-8
 let using_neovim = has('nvim')
 let using_vim = !using_neovim
 
+" Code runner
+map <F8> :call CompileRunGcc()<CR>
+func! CompileRunGcc()
+exec "w"
+if &filetype == 'c'
+exec "!gcc % -o %<"
+exec "!time ./%<"
+elseif &filetype == 'cpp'
+exec "!g++ % -o %<"
+exec "!time ./%<"
+elseif &filetype == 'java'
+exec "!javac %"
+exec "!time java -cp %:p:h %:t:r"
+elseif &filetype == 'sh'
+exec "!time bash %"
+elseif &filetype == 'html'
+exec "!firefox % &"
+elseif &filetype == 'go'
+exec "!go build %<"
+exec "!time go run %"
+elseif &filetype == 'mkd'
+exec "!~/.vim/markdown.pl % > %.html &"
+exec "!firefox %.html &"
+endif
+endfunc
+autocmd FileType python map <buffer> <F9> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
+autocmd FileType python imap <buffer> <F9> <esc>:w<CR>:exec '!python3' shellescape(@%, 1)<CR>
+
+
 call plug#begin()
 	" Appearance 
 	Plug 'vim-airline/vim-airline'
@@ -125,9 +154,11 @@ if has('gui_running') || using_neovim || (&term =~? 'mlterm\|xterm\|xterm-256\|s
     if !has('gui_running')
         let &t_Co = 256
     endif
-    colorscheme vim-monokai-tasty
+    colorscheme dracula
+		hi Normal guibg=NONE ctermbg=NONE
 else
     colorscheme delek
+		hi Normal guibg=NONE ctermbg=NONE
 endif
 
 " Airline
