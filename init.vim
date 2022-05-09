@@ -45,6 +45,8 @@ call plug#begin()
 	Plug 'preservim/nerdtree'
 	Plug 'majutsushi/tagbar'
 	Plug 'kien/ctrlp.vim'
+	Plug 'junegunn/fzf'
+	Plug 'junegunn/fzf.vim'
 
 	" Completion / linters / formatters
 	" Plug 'neoclide/coc.nvim',  {'branch': 'master', 'do': 'yarn install'}
@@ -76,7 +78,7 @@ call plug#begin()
 	Plug 'sheerun/vim-polyglot'
 
 	" Python autocompletion
-	Plug 'deoplete-plugins/deoplete-jedi'
+	" Plug 'deoplete-plugins/deoplete-jedi'
 " Completion from other opened files	
 	Plug 'Shougo/context_filetype.vim'
 	" Just to add the python go-to-definition and similar features, autocompletion
@@ -87,7 +89,6 @@ call plug#begin()
 	Plug 'Townk/vim-autoclose'
 
 	" Keymap shorcuts
-	Plug 'junegunn/fzf.vim'
 	" Start screen
 	Plug 'mhinz/vim-startify'
 call plug#end()
@@ -115,6 +116,7 @@ set wildmenu
 set expandtab
 set shiftwidth=2
 set tabstop=2
+set autoindent
 
 " MAPPINGS
 " tab navigation mappings
@@ -154,7 +156,7 @@ if has('gui_running') || using_neovim || (&term =~? 'mlterm\|xterm\|xterm-256\|s
     if !has('gui_running')
         let &t_Co = 256
     endif
-    colorscheme dracula
+    colorscheme vim-monokai-tasty
 		hi Normal guibg=NONE ctermbg=NONE
 else
     colorscheme delek
@@ -294,14 +296,23 @@ let mapleader = ','
 " Normal mode remappings
 nnoremap <C-q> :q!<CR>
 nnoremap <F4> :bd<CR>
-nnoremap <F5> :NERDTreeToggle<CR>
-nnoremap <F6> :sp<CR>:terminal<CR>
-nnoremap <F10> :CocCommand tsserver.organizeImports<CR>
+" nnoremap <F6> :sp<CR>:terminal<CR>
+
+nnoremap <silent> <C-t> :call <SID>toggle_terminal()<CR>
+function! s:toggle_terminal() abort
+  let l:w = bufwinnr('term://.*/\d\+:bash') " find window having bash terminal
+  if l:w > 0 " if found
+    execute l:w . 'close'
+  else 
+    split term://bash " start a new bash terminal in a split
+  endif
+endfunction
 
 "" Tabs
 nnoremap <S-Tab> gT
 nnoremap <Tab> gt
 nnoremap <silent> <S-t> :tabnew<CR>
+nnoremap <silent> <S-q> :close <CR>
 
 " Show highlight groups
 map <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
