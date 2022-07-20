@@ -49,7 +49,7 @@ call plug#begin()
 	Plug 'junegunn/fzf.vim'
 
 	" Completion / linters / formatters
-	" Plug 'neoclide/coc.nvim',  {'branch': 'master', 'do': 'yarn install'}
+	Plug 'neoclide/coc.nvim', {'branch': 'release'}
 	Plug 'plasticboy/vim-markdown'
 	Plug 'stephpy/vim-php-cs-fixer'
 	Plug 'pantharshit00/vim-prisma'
@@ -91,6 +91,14 @@ call plug#begin()
 	" Keymap shorcuts
 	" Start screen
 	Plug 'mhinz/vim-startify'
+
+	" flutter stuff
+	Plug 'nvim-lua/plenary.nvim'
+	Plug 'akinsho/flutter-tools.nvim'
+	Plug 'dart-lang/dart-vim-plugin'
+	Plug 'thosakwe/vim-flutter'
+	Plug 'natebosch/vim-lsc'
+	Plug 'natebosch/vim-lsc-dart'
 call plug#end()
 
 " Syntax
@@ -156,7 +164,7 @@ if has('gui_running') || using_neovim || (&term =~? 'mlterm\|xterm\|xterm-256\|s
     if !has('gui_running')
         let &t_Co = 256
     endif
-    colorscheme vim-monokai-tasty
+    colorscheme dracula
 		hi Normal guibg=NONE ctermbg=NONE
 else
     colorscheme delek
@@ -164,13 +172,11 @@ else
 endif
 
 " Airline
-let g:airline_theme = 'monokai_tasty'
+let g:airline_theme = 'dracula'
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#airline_powerline_fonts = 1
-let g:airline#extensions#tabline#left_sep = ' '
-let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline#extensions#tabline#formatter = 'default'
+
 
 " Italics
 let &t_ZH = "\e[3m"
@@ -179,7 +185,7 @@ let &t_ZR = "\e[23m"
 " Tagbar -----------------------------
 
 " toggle tagbar display
-map <F2> :TagbarToggle<CR>
+map <F2> :DartAnalysisServerDiagnostics<CR>
 " autofocus on tagbar open
 let g:tagbar_autofocus = 1
 
@@ -287,7 +293,7 @@ let g:tex_conceal = ''
 let g:vim_markdown_math = 1
 
 " Language server stuff
-let g:python3_host_prog = '/usr/bin/python'
+let g:python3_host_prog = '/usr/bin/python3'
 command! -nargs=0 Prettier :call CocAction('runCommand', 'prettier.formatFile')
 
 " Leader
@@ -319,12 +325,34 @@ map <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
-"Auto Commands
-" augroup auto_commands
-"	autocmd BufWrite *.py call CocAction('format')
-"	autocmd FileType scss setlocal iskeyword+=@-@
-"	autocmd BufWritePost *.php silent! call PhpCsFixerFixFile()
-"	autocmd BufWrite *.js call CocAction('runCommand','tsserver.organizeImports')
-"	autocmd BufWrite *.ts* call CocAction('runCommand','tsserver.organizeImports')
-"augroup END
+" flutter hotkeys
+"nnoremap <leader>fa :FlutterRun<cr>
+"nnoremap <leader>fq :FlutterQuit<cr>
+"nnoremap <leader>fr :FlutterHotReload<cr>
+"nnoremap <leader>fR :FlutterHotRestart<cr>
+"nnoremap <leader>fD :FlutterVisualDebug<cr>
+"nnoremap <leader>fl :FlutterEmulatorsLaunch Nexus One API 22<cr>
 
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+inoremap <silent><expr> <c-space> coc#refresh()
+
+nmap <silent> gf <Plug>(coc-definition)
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+nmap <leader>fc  :CocList --input=flutter commands<CR>
+nmap <leader>fe  :CocCommand flutter.emulators<CR>
+nmap <leader>fr  :CocCommand flutter.run<CR>
+nmap <leader>fq  :CocCommand flutter.dev.quit<CR>
+nmap <leader>fh  :CocCommand flutter.dev.hotRestart<CR>
+nmap <leader>fl  :CocCommand flutter.dev.openDevLog<CR>
